@@ -3,6 +3,7 @@ import {
   defineComponent,
   onMounted,
   onUnmounted,
+  onUpdated,
   PropType,
   ref,
 } from "vue";
@@ -237,7 +238,9 @@ export default defineComponent({
         setTimeout(redraw, 50);
       }
     });
-
+    onUpdated(() => {
+      redraw();
+    });
     onUnmounted(() => {
       window.removeEventListener("resize", redraw);
     });
@@ -604,7 +607,6 @@ export default defineComponent({
     };
     const redraw = debounce(() => draw(), 200);
     return () => {
-      redraw();
       return <svg ref={svgRef}></svg>;
     };
   },
