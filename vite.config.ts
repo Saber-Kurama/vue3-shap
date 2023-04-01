@@ -15,11 +15,12 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: path.resolve(__dirname, "./index.ts"),
-      name: "demo-ui-lib",
-      fileName: (format) => `demo-ui-lib.${format}.js`,
+      entry: path.resolve(__dirname, "./src/index.tsx"),
+      name: "shap",
+      fileName: (format) => `index.${format}.js`,
+      formats: ["es", "cjs", "umd"],
     },
-    outDir: path.resolve(__dirname, "../../lib"),
+    outDir: path.resolve(__dirname, "dist"),
     rollupOptions: {
       external: ["vue"],
       output: {
