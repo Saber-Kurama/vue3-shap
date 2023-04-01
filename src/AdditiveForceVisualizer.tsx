@@ -52,6 +52,10 @@ export default defineComponent({
       type: [String, Array] as PropType<string | any[]>,
       default: "RdBu",
     },
+    labelMargin: {
+      type: Number as PropType<number>,
+      default: 20,
+    },
   },
   setup(props) {
     const svgRef = ref();
@@ -60,7 +64,8 @@ export default defineComponent({
       axisElement: any,
       onTopGroup: any,
       axis: any,
-      scaleCentered: any;
+      scaleCentered: any,
+      brighterColors: any;
     const tickFormat = format(",.4");
     //
     const invLinkFunction = computed(() => {
@@ -116,6 +121,44 @@ export default defineComponent({
           .tickSizeOuter(0)
           .tickFormat((d) => tickFormat(invLinkFunction.value?.(d as number)))
           .tickPadding(-18);
+
+        brighterColors = [1.45, 1.6].map((v, i) => colors.value[i].brighter(v));
+        colors.value.map((c: any, i: any) => {
+          let grad = chart.value
+            .append("linearGradient")
+            .attr("id", "linear-grad-" + i)
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "0%")
+            .attr("y2", "100%");
+          grad
+            .append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", c)
+            .attr("stop-opacity", 0.6);
+          grad
+            .append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", c)
+            .attr("stop-opacity", 0);
+          let grad2 = chart.value
+            .append("linearGradient")
+            .attr("id", "linear-backgrad-" + i)
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "0%")
+            .attr("y2", "100%");
+          grad2
+            .append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", c)
+            .attr("stop-opacity", 0.5);
+          grad2
+            .append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", c)
+            .attr("stop-opacity", 0);
+        });
         draw();
         // // 开始绘制一个矩形实时
         // const barData = [45, 67, 96, 84, 41];
@@ -291,6 +334,109 @@ export default defineComponent({
             (d.effect > 0 ? -d.textWidth / 2 : d.textWidth / 2)
         )
         .attr("text-anchor", "middle"); //d => d.effect > 0 ? 'end' : 'start');
+
+      console.log("filteredData====", filteredData);
+
+      const a = filter(filteredData, (d) => {
+        return (
+          scale(d.textx) + scaleOffset > props.labelMargin &&
+          scale(d.textx) + scaleOffset < width - props.labelMargin
+        );
+      });
+      console.log("a", a);
+      let labelBacking = mainGroup.selectAll(".force-bar-labelBacking").data(a);
+      labelBacking
+        .enter()
+        .append("path")
+        .attr("class", "force-bar-labelBacking")
+        .attr("stroke", "none")
+        .attr("opacity", 0.2)
+        .merge(labelBacking)
+        .attr("d", (d: any) => {
+          return lineFunction([
+            [
+              scale(d.x) + scale(Math.abs(d.effect)) + scaleOffset,
+              23 + topOffset,
+            ],
+            [
+              (d.effect > 0 ? scale(d.textx) : scale(d.textx) + d.textWidth) +
+                scaleOffset +
+                5,
+              33 + topOffset,
+            ],
+            [
+              (d.effect > 0 ? scale(d.textx) : scale(d.textx) + d.textWidth) +
+                scaleOffset +
+                5,
+              54 + topOffset,
+            ],
+            [
+              (d.effect > 0 ? scale(d.textx) - d.textWidth : scale(d.textx)) +
+                scaleOffset -
+                5,
+              54 + topOffset,
+            ],
+            [
+              (d.effect > 0 ? scale(d.textx) - d.textWidth : scale(d.textx)) +
+                scaleOffset -
+                5,
+              33 + topOffset,
+            ],
+            [scale(d.x) + scaleOffset, 23 + topOffset],
+          ]);
+        })
+        .attr(
+          "fill",
+          (d: any) => `url(#linear-backgrad-${d.effect > 0 ? 0 : 1})`
+        );
+      labelBacking.exit().remove();
+
+      let labelDividers = mainGroup
+        .selectAll(".force-bar-labelDividers")
+        .data(a.slice(0, -1));
+      labelDividers
+        .enter()
+        .append("rect")
+        .attr("class", "force-bar-labelDividers")
+        .attr("height", "21px")
+        .attr("width", "1px")
+        .attr("y", 33 + topOffset)
+        .merge(labelDividers)
+        .attr(
+          "x",
+          (d: any) =>
+            (d.effect > 0 ? scale(d.textx) : scale(d.textx) + d.textWidth) +
+            scaleOffset +
+            4.5
+        )
+        .attr("fill", (d: any) => `url(#linear-grad-${d.effect > 0 ? 0 : 1})`);
+      labelDividers.exit().remove();
+
+      let blockDividers = mainGroup
+        .selectAll(".force-bar-blockDividers")
+        .data(data.slice(0, -1));
+      blockDividers
+        .enter()
+        .append("path")
+        .attr("class", "force-bar-blockDividers")
+        .attr("stroke-width", 2)
+        .attr("fill", "none")
+        .merge(blockDividers)
+        .attr("d", (d: any) => {
+          let pos = scale(d.x) + scale(Math.abs(d.effect)) + scaleOffset;
+          return lineFunction([
+            [pos, 6 + topOffset],
+            [pos + (d.effect < 0 ? -4 : 4), 14.5 + topOffset],
+            [pos, 23 + topOffset],
+          ]);
+        })
+        .attr("stroke", (d: any, i: any) => {
+          if (joinPointIndex === i + 1 || Math.abs(d.effect) < 1e-8)
+            return "#rgba(0,0,0,0)";
+          else if (d.effect > 0) return brighterColors[0];
+          else return brighterColors[1];
+        });
+      blockDividers.exit().remove();
     };
     return () => {
       return <svg ref={svgRef}></svg>;
