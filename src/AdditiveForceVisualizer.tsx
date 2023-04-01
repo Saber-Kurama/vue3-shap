@@ -604,6 +604,7 @@ export default defineComponent({
     };
     const redraw = debounce(() => draw(), 200);
     return () => {
+      redraw();
       return <svg ref={svgRef}></svg>;
     };
   },
