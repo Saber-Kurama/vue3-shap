@@ -79,6 +79,7 @@ export default defineComponent({
       joinPointTitleLeftArrow: any,
       joinPointTitleRightArrow: any,
       joinPointTitleRight: any;
+    let hoverLabelBacking: any, hoverLabel: any;
     const tickFormat = format(",.4");
     //
     const invLinkFunction = computed(() => {
@@ -118,6 +119,13 @@ export default defineComponent({
       return _featuresData;
     });
 
+    const getLabel = (d: any) => {
+      if (d.value !== undefined && d.value !== null && d.value !== "") {
+        return (
+          d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
+        );
+      } else return d.name;
+    };
     onMounted(() => {
       if (svgRef.value) {
         chart.value = select(svgRef.value);
@@ -137,6 +145,43 @@ export default defineComponent({
         joinPointTitleLeftArrow = chart.value.append("text");
         joinPointTitleRightArrow = chart.value.append("text");
         joinPointTitleRight = chart.value.append("text");
+
+        hoverLabelBacking = chart.value
+          .append("text")
+          .attr("x", 10)
+          .attr("y", 20)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 12)
+          .attr("stroke", "#fff")
+          .attr("fill", "#fff")
+          .attr("stroke-width", "4")
+          .attr("stroke-linejoin", "round")
+          .text("aaa")
+          .on("mouseover", () => {
+            hoverLabel.attr("opacity", 1);
+            hoverLabelBacking.attr("opacity", 1);
+          })
+          .on("mouseout", () => {
+            hoverLabel.attr("opacity", 0);
+            hoverLabelBacking.attr("opacity", 0);
+          });
+        hoverLabel = chart.value
+          .append("text")
+          .attr("x", 10)
+          .attr("y", 20)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 12)
+          .attr("fill", "#0f0")
+          .text("cc")
+          .on("mouseover", () => {
+            hoverLabel.attr("opacity", 1);
+            hoverLabelBacking.attr("opacity", 1);
+          })
+          .on("mouseout", () => {
+            hoverLabel.attr("opacity", 0);
+            hoverLabelBacking.attr("opacity", 0);
+          });
+
         scaleCentered = scaleLinear();
         axis = axisBottom(scaleCentered)
           .tickSizeInner(4)
@@ -182,31 +227,6 @@ export default defineComponent({
             .attr("stop-opacity", 0);
         });
         draw();
-        // // 开始绘制一个矩形实时
-        // const barData = [45, 67, 96, 84, 41];
-        // const rectWidth = 50;
-        // chart.value
-        //   .selectAll("rect")
-        //   .data(barData)
-        //   .attr("x", (d, i) => i * rectWidth)
-        //   // set height based on the bound datum
-        //   .attr("height", (d) => d)
-        //   // rest of attributes are constant values
-        //   .attr("width", rectWidth)
-        //   .attr("stroke-width", 3)
-        //   .attr("stroke", "plum")
-        //   .attr("fill", "pink")
-        //   .enter()
-        //   .append("rect")
-        //   // calculate x-position based on its index
-        //   .attr("x", (d, i) => i * rectWidth)
-        //   // set height based on the bound datum
-        //   .attr("height", (d) => d)
-        //   // rest of attributes are constant values
-        //   .attr("width", rectWidth)
-        //   .attr("stroke-width", 3)
-        //   .attr("stroke", "plum")
-        //   .attr("fill", "pink");
       }
     });
     const draw = () => {
@@ -293,7 +313,32 @@ export default defineComponent({
         })
         .attr("fill", (d: any) =>
           d.effect > 0 ? colors.value[0] : colors.value[1]
-        );
+        )
+        .on("mouseover", (event: any, d: any) => {
+          if (
+            scale(Math.abs(d.effect)) < scale(totalEffect) / 50 ||
+            scale(Math.abs(d.effect)) < 10
+          ) {
+            console.log("assss");
+            let x = scale(d.x) + scaleOffset;
+            let w = scale(Math.abs(d.effect));
+            hoverLabel
+              .attr("opacity", 1)
+              .attr("x", x + w / 2)
+              .attr("y", topOffset + 0.5)
+              .attr("fill", d.effect > 0 ? colors.value[0] : colors.value[1])
+              .text(getLabel(d));
+            hoverLabelBacking
+              .attr("opacity", 1)
+              .attr("x", x + w / 2)
+              .attr("y", topOffset + 0.5)
+              .text(getLabel(d));
+          }
+        })
+        .on("mouseout", () => {
+          hoverLabel.attr("opacity", 0);
+          hoverLabelBacking.attr("opacity", 0);
+        });
       blocks.exit().remove();
 
       // 绘制标签？
