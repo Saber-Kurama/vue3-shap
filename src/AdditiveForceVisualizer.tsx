@@ -1,5 +1,12 @@
-import { computed, defineComponent, onMounted, PropType, ref } from "vue";
-import { sortBy, map, each, sum, filter, findIndex, debounce } from "lodash";
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  onUnmounted,
+  PropType,
+  ref,
+} from "vue";
+import { sortBy, map, each, sum, filter, debounce } from "lodash";
 import { select } from "d3-selection";
 import { format } from "d3-format";
 import { scaleLinear } from "d3-scale";
@@ -156,7 +163,7 @@ export default defineComponent({
           .attr("fill", "#fff")
           .attr("stroke-width", "4")
           .attr("stroke-linejoin", "round")
-          .text("aaa")
+          .text("")
           .on("mouseover", () => {
             hoverLabel.attr("opacity", 1);
             hoverLabelBacking.attr("opacity", 1);
@@ -172,7 +179,7 @@ export default defineComponent({
           .attr("text-anchor", "middle")
           .attr("font-size", 12)
           .attr("fill", "#0f0")
-          .text("cc")
+          .text("")
           .on("mouseover", () => {
             hoverLabel.attr("opacity", 1);
             hoverLabelBacking.attr("opacity", 1);
@@ -226,8 +233,13 @@ export default defineComponent({
             .attr("stop-color", c)
             .attr("stop-opacity", 0);
         });
-        draw();
+        window.addEventListener("resize", redraw);
+        setTimeout(redraw, 50);
       }
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("resize", redraw);
     });
     const draw = () => {
       let width = chart.value.node().parentNode.offsetWidth;
@@ -590,6 +602,7 @@ export default defineComponent({
         .text("base value")
         .attr("opacity", 0.5);
     };
+    const redraw = debounce(() => draw(), 200);
     return () => {
       return <svg ref={svgRef}></svg>;
     };
