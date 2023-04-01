@@ -6,11 +6,20 @@ const features = {
   "2": { value: 2.0, effect: -2.5 },
   "3": { value: 2.0, effect: -0.5 },
 };
+const featureNames = {
+  "0": "Blue",
+  "1": "Red",
+  "2": "Green",
+  "3": "Orange",
+};
 </script>
 
 <template>
   <div>
     这是一个demo
-    <AdditiveForceVisualizer :features="features" />
+    <AdditiveForceVisualizer
+      :features="features"
+      :featureNames="featureNames"
+    />
   </div>
 </template>

@@ -56,7 +56,11 @@ export default defineComponent({
   setup(props) {
     const svgRef = ref();
     const chart = ref();
-    let mainGroup: any, axisElement: any, axis: any, scaleCentered: any;
+    let mainGroup: any,
+      axisElement: any,
+      onTopGroup: any,
+      axis: any,
+      scaleCentered: any;
     const tickFormat = format(",.4");
     //
     const invLinkFunction = computed(() => {
@@ -87,6 +91,15 @@ export default defineComponent({
       return plot_colors.map((x: any) => hsl(x));
     });
 
+    const featuresData = computed(() => {
+      let _featuresData = { ...props.features };
+      each(props.featureNames, (n, i) => {
+        if (_featuresData[i]) _featuresData[i].name = n;
+      });
+      console.log("_featuresData"), _featuresData;
+      return _featuresData;
+    });
+
     onMounted(() => {
       if (svgRef.value) {
         chart.value = select(svgRef.value);
@@ -96,6 +109,7 @@ export default defineComponent({
           .append("g")
           .attr("transform", "translate(0,35)")
           .attr("class", "force-bar-axis");
+        onTopGroup = chart.value.append("g");
         scaleCentered = scaleLinear();
         axis = axisBottom(scaleCentered)
           .tickSizeInner(4)
@@ -131,10 +145,6 @@ export default defineComponent({
       }
     });
     const draw = () => {
-      // each(props.featureNames, (n, i) => {
-      //   if (props.features[i]) this.props.features[i].name = n;
-      // });
-
       let width = chart.value.node().parentNode.offsetWidth;
       console.log("width", width);
       // 延迟绘制
@@ -142,7 +152,7 @@ export default defineComponent({
       chart.value.style("height", 150 + "px");
       chart.value.style("width", width + "px");
       let topOffset = 50;
-      let data = sortBy(props.features, (x) => -1 / (x.effect + 1e-10));
+      let data = sortBy(featuresData.value, (x) => -1 / (x.effect + 1e-10));
       let totalEffect = sum(map(data, (x) => Math.abs(x.effect)));
       let totalPosEffects =
         sum(
@@ -219,6 +229,68 @@ export default defineComponent({
         .attr("fill", (d: any) =>
           d.effect > 0 ? colors.value[0] : colors.value[1]
         );
+      blocks.exit().remove();
+
+      // 绘制标签？
+      let filteredData = filter(data, (d) => {
+        return (
+          scale(Math.abs(d.effect)) > scale(totalEffect) / 50 &&
+          scale(Math.abs(d.effect)) > 10
+        );
+      });
+      let labels = onTopGroup.selectAll(".force-bar-labels").data(filteredData);
+      labels.exit().remove();
+      labels = labels
+        .enter()
+        .append("text")
+        .attr("class", "force-bar-labels")
+        .attr("font-size", "12px")
+        .attr("y", 48 + topOffset)
+        .merge(labels)
+        .text((d: any) => {
+          console.log("ddd", d);
+          if (d.value !== undefined && d.value !== null && d.value !== "") {
+            return (
+              d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
+            );
+          } else return d.name;
+        })
+        .attr("fill", (d: any) =>
+          d.effect > 0 ? colors.value[0] : colors.value[1]
+        )
+        .attr("stroke", function (d: any) {
+          d.textWidth = Math.max(
+            // @ts-ignore
+            this.getComputedTextLength(),
+            scale(Math.abs(d.effect)) - 10
+          );
+          // @ts-ignore
+          d.innerTextWidth = this.getComputedTextLength();
+          return "none";
+        });
+      // compute where the text labels should go
+      if (data.length > 0) {
+        pos = joinPoint + scale.invert(5);
+        for (let i = joinPointIndex; i < data.length; ++i) {
+          data[i].textx = pos;
+          pos += scale.invert(data[i].textWidth + 10);
+        }
+        pos = joinPoint - scale.invert(5);
+        for (let i = joinPointIndex - 1; i >= 0; --i) {
+          data[i].textx = pos;
+          pos -= scale.invert(data[i].textWidth + 10);
+        }
+      }
+
+      labels
+        .attr(
+          "x",
+          (d: any) =>
+            scale(d.textx) +
+            scaleOffset +
+            (d.effect > 0 ? -d.textWidth / 2 : d.textWidth / 2)
+        )
+        .attr("text-anchor", "middle"); //d => d.effect > 0 ? 'end' : 'start');
     };
     return () => {
       return <svg ref={svgRef}></svg>;
