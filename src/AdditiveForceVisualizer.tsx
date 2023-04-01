@@ -56,6 +56,10 @@ export default defineComponent({
       type: Number as PropType<number>,
       default: 20,
     },
+    outNames: {
+      type: Array as PropType<string[]>,
+      default: ["saber"],
+    },
   },
   setup(props) {
     const svgRef = ref();
@@ -65,7 +69,12 @@ export default defineComponent({
       onTopGroup: any,
       axis: any,
       scaleCentered: any,
-      brighterColors: any;
+      brighterColors: any,
+      baseValueTitle: any,
+      joinPointLine: any,
+      joinPointLabelOutline: any,
+      joinPointLabel: any,
+      joinPointTitle: any;
     const tickFormat = format(",.4");
     //
     const invLinkFunction = computed(() => {
@@ -115,6 +124,10 @@ export default defineComponent({
           .attr("transform", "translate(0,35)")
           .attr("class", "force-bar-axis");
         onTopGroup = chart.value.append("g");
+        joinPointLine = chart.value.append("line");
+        joinPointLabelOutline = chart.value.append("text");
+        joinPointLabel = chart.value.append("text");
+        joinPointTitle = chart.value.append("text");
         scaleCentered = scaleLinear();
         axis = axisBottom(scaleCentered)
           .tickSizeInner(4)
@@ -437,6 +450,48 @@ export default defineComponent({
           else return brighterColors[1];
         });
       blockDividers.exit().remove();
+
+      joinPointLine
+        .attr("x1", scale(joinPoint) + scaleOffset)
+        .attr("x2", scale(joinPoint) + scaleOffset)
+        .attr("y1", 0 + topOffset)
+        .attr("y2", 6 + topOffset)
+        .attr("stroke", "#F2F2F2")
+        .attr("stroke-width", 1)
+        .attr("opacity", 1);
+
+      joinPointLabelOutline
+        .attr("x", scale(joinPoint) + scaleOffset)
+        .attr("y", -5 + topOffset)
+        .attr("color", "#fff")
+        .attr("text-anchor", "middle")
+        .attr("font-weight", "bold")
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 6)
+        .text(
+          format(",.2f")(invLinkFunction.value(joinPoint - totalNegEffects))
+        )
+        .attr("opacity", 1);
+
+      joinPointLabel
+        .attr("x", scale(joinPoint) + scaleOffset)
+        .attr("y", -5 + topOffset)
+        .attr("text-anchor", "middle")
+        .attr("font-weight", "bold")
+        .attr("fill", "#000")
+        .text(
+          format(",.2f")(invLinkFunction.value(joinPoint - totalNegEffects))
+        )
+        .attr("opacity", 1);
+
+      joinPointTitle
+        .attr("x", scale(joinPoint) + scaleOffset)
+        .attr("y", -22 + topOffset)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "12")
+        .attr("fill", "#000")
+        .text(props.outNames[0])
+        .attr("opacity", 0.5);
     };
     return () => {
       return <svg ref={svgRef}></svg>;
