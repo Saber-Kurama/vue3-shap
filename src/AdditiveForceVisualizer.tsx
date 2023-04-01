@@ -74,7 +74,11 @@ export default defineComponent({
       joinPointLine: any,
       joinPointLabelOutline: any,
       joinPointLabel: any,
-      joinPointTitle: any;
+      joinPointTitle: any,
+      joinPointTitleLeft: any,
+      joinPointTitleLeftArrow: any,
+      joinPointTitleRightArrow: any,
+      joinPointTitleRight: any;
     const tickFormat = format(",.4");
     //
     const invLinkFunction = computed(() => {
@@ -124,10 +128,15 @@ export default defineComponent({
           .attr("transform", "translate(0,35)")
           .attr("class", "force-bar-axis");
         onTopGroup = chart.value.append("g");
+        baseValueTitle = chart.value.append("text");
         joinPointLine = chart.value.append("line");
         joinPointLabelOutline = chart.value.append("text");
         joinPointLabel = chart.value.append("text");
         joinPointTitle = chart.value.append("text");
+        joinPointTitleLeft = chart.value.append("text");
+        joinPointTitleLeftArrow = chart.value.append("text");
+        joinPointTitleRightArrow = chart.value.append("text");
+        joinPointTitleRight = chart.value.append("text");
         scaleCentered = scaleLinear();
         axis = axisBottom(scaleCentered)
           .tickSizeInner(4)
@@ -491,6 +500,49 @@ export default defineComponent({
         .attr("font-size", "12")
         .attr("fill", "#000")
         .text(props.outNames[0])
+        .attr("opacity", 0.5);
+
+      joinPointTitleLeft
+        .attr("x", scale(joinPoint) + scaleOffset - 16)
+        .attr("y", -38 + topOffset)
+        .attr("text-anchor", "end")
+        .attr("font-size", "13")
+        .attr("fill", colors.value[0])
+        .text("higher")
+        .attr("opacity", 1.0);
+      joinPointTitleRight
+        .attr("x", scale(joinPoint) + scaleOffset + 16)
+        .attr("y", -38 + topOffset)
+        .attr("text-anchor", "start")
+        .attr("font-size", "13")
+        .attr("fill", colors.value[1])
+        .text("lower")
+        .attr("opacity", 1.0);
+
+      joinPointTitleLeftArrow
+        .attr("x", scale(joinPoint) + scaleOffset + 7)
+        .attr("y", -42 + topOffset)
+        .attr("text-anchor", "end")
+        .attr("font-size", "13")
+        .attr("fill", colors.value[0])
+        .text("→")
+        .attr("opacity", 1.0);
+      joinPointTitleRightArrow
+        .attr("x", scale(joinPoint) + scaleOffset - 7)
+        .attr("y", -36 + topOffset)
+        .attr("text-anchor", "start")
+        .attr("font-size", "13")
+        .attr("fill", colors.value[1])
+        .text("←")
+        .attr("opacity", 1.0);
+
+      baseValueTitle
+        .attr("x", scaleCentered(0))
+        .attr("y", -22 + topOffset)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "12")
+        .attr("fill", "#000")
+        .text("base value")
         .attr("opacity", 0.5);
     };
     return () => {
