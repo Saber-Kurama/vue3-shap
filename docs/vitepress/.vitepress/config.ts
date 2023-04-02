@@ -15,7 +15,7 @@ export default defineConfig({
       {
         text: "Examples",
         items: [
-          { text: "examples", link: "/markdown-examples" },
+          { text: "AdditiveForceVisualizer", link: "/markdown-examples" },
           // { text: "Runtime API Examples", link: "/api-examples" },
         ],
       },

@@ -123,7 +123,6 @@ export default defineComponent({
       each(props.featureNames, (n, i) => {
         if (_featuresData[i]) _featuresData[i].name = n;
       });
-      console.log("_featuresData"), _featuresData;
       return _featuresData;
     });
 
@@ -246,7 +245,6 @@ export default defineComponent({
     });
     const draw = () => {
       let width = chart.value.node().parentNode.offsetWidth;
-      console.log("width", width);
       // 延迟绘制
       if (width == 0) return setTimeout(() => draw(), 500);
       chart.value.style("height", 150 + "px");
@@ -268,11 +266,9 @@ export default defineComponent({
             (x) => -x.effect
           )
         ) || 0;
-      console.log("data", data, totalEffect, totalPosEffects, totalNegEffects);
       const domainSize = Math.max(totalPosEffects, totalNegEffects) * 3;
       let scale = scaleLinear().domain([0, domainSize]).range([0, width]);
       let scaleOffset = width / 2 - scale(totalNegEffects);
-      console.log("scaleOffset", scaleOffset, domainSize);
       scaleCentered
         .domain([-domainSize / 2, domainSize / 2])
         .range([0, width])
@@ -308,10 +304,8 @@ export default defineComponent({
         .attr("class", "force-bar-blocks")
         .merge(blocks)
         .attr("d", (d: any, i: number) => {
-          console.log("d", d);
           let x = scale(d.x) + scaleOffset;
           let w = scale(Math.abs(d.effect));
-          console.log("d", x, w);
           // todo: 为啥是4
           let pointShiftStart = d.effect < 0 ? -4 : 4;
           let pointShiftEnd = pointShiftStart;
@@ -334,7 +328,6 @@ export default defineComponent({
             scale(Math.abs(d.effect)) < scale(totalEffect) / 50 ||
             scale(Math.abs(d.effect)) < 10
           ) {
-            console.log("assss");
             let x = scale(d.x) + scaleOffset;
             let w = scale(Math.abs(d.effect));
             hoverLabel
@@ -373,7 +366,6 @@ export default defineComponent({
         .attr("y", 48 + topOffset)
         .merge(labels)
         .text((d: any) => {
-          console.log("ddd", d);
           if (d.value !== undefined && d.value !== null && d.value !== "") {
             return (
               d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
@@ -417,15 +409,12 @@ export default defineComponent({
         )
         .attr("text-anchor", "middle"); //d => d.effect > 0 ? 'end' : 'start');
 
-      console.log("filteredData====", filteredData);
-
       const a = filter(filteredData, (d) => {
         return (
           scale(d.textx) + scaleOffset > props.labelMargin &&
           scale(d.textx) + scaleOffset < width - props.labelMargin
         );
       });
-      console.log("a", a);
       let labelBacking = mainGroup.selectAll(".force-bar-labelBacking").data(a);
       labelBacking
         .enter()

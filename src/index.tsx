@@ -3,4 +3,10 @@ import AdditiveForceVisualizer from "./AdditiveForceVisualizer";
 
 // export default withInstall(EditText);
 
-export default AdditiveForceVisualizer;
+export { AdditiveForceVisualizer };
+
+const Shap = {
+  AdditiveForceVisualizer,
+};
+
+export default Shap;

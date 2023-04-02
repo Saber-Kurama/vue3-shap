@@ -4,15 +4,15 @@ layout: home
 
 hero:
   name: "vue3-shap"
-  text: "A VitePress Site"
-  tagline: My great project tagline
+  text: "基于vue3 的 SHAP"
+  # tagline: My great project tagline
   actions:
     - theme: brand
-      text: Markdown Examples
+      text: 查看例子
       link: /markdown-examples
-    - theme: alt
-      text: API Examples
-      link: /api-examples
+    # - theme: alt
+    #   text: API Examples
+    #   link: /api-examples
 
 features:
   - title: Feature A

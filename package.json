@@ -1,5 +1,5 @@
 {
-  "name": "@demo-ui-lib/demo-ui-lib",
+  "name": "@dangojs/vue3-shap",
   "version": "0.0.1",
   "description": "",
   "main": "./dist/index.cjs.js",
@@ -15,8 +15,14 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "registry": "",
+    "access": "public"
+  },
   "scripts": {
-    "build": "rimraf dist && vue-tsc --noEmit && vite build"
+    "build": "vue-tsc --noEmit && vite build",
+    "clean": "rimraf dist",
+    "release": "bumpp && pnpm publish"
   },
   "keywords": [],
   "author": "",

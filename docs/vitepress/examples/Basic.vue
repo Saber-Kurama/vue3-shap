@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import AdditiveForceVisualizer from "../../../src/AdditiveForceVisualizer";
+// import AdditiveForceVisualizer from "../../../src/AdditiveForceVisualizer";
+import { AdditiveForceVisualizer } from "../../../dist/index.es.js";
 
 const features = ref({
   "0": { value: 1.0, effect: 1.0 },
@@ -39,7 +40,6 @@ setTimeout(() => {
 
 <template>
   <div>
-    这是一个demo
     <AdditiveForceVisualizer
       :features="features"
       :featureNames="featureNames"
