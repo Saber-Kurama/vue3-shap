@@ -58,7 +58,7 @@ export default defineComponent({
     },
     plot_cmap: {
       type: [String, Array] as PropType<string | any[]>,
-      default: "RdBu",
+      default: "GnPR",
     },
     labelMargin: {
       type: Number as PropType<number>,

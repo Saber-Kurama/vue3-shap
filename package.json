@@ -20,8 +20,9 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "npm run clean && vue-tsc --noEmit && vite build",
     "clean": "rimraf dist",
+    "prepublishOnly": "npm run build",
     "release": "bumpp && pnpm publish"
   },
   "keywords": [],

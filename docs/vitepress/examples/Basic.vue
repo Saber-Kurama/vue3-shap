@@ -43,6 +43,7 @@ setTimeout(() => {
     <AdditiveForceVisualizer
       :features="features"
       :featureNames="featureNames"
+      plot_cmap="GnBu"
     />
   </div>
 </template>
