@@ -622,13 +622,15 @@ export default defineComponent({
         onTopGroupW = Math.abs(onTopGroupBBox.x) + onTopGroupBBox.width;
       }
 
-      if (onTopGroupW > width + 2) {
+      if (onTopGroupW > width + 1) {
         chart.value.style("width", onTopGroupW + "px");
         if (onTopGroupBBox.x < 0) {
           chart.value.attr(
             "viewBox",
             `${onTopGroupBBox.x} 0 ${onTopGroupW} ${150}`
           );
+        } else {
+          chart.value.attr("viewBox", null);
         }
       } else {
         chart.value.attr("viewBox", null);
