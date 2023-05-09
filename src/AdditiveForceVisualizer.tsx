@@ -64,9 +64,13 @@ export default defineComponent({
       type: Number as PropType<number>,
       default: 20,
     },
+    baseValueTitle: {
+      type: String as PropType<string>,
+      default: "基准值",
+    },
     outNames: {
       type: Array as PropType<string[]>,
-      default: ["saber"],
+      default: ["预测值"],
     },
   },
   setup(props) {
@@ -244,12 +248,14 @@ export default defineComponent({
       window.removeEventListener("resize", redraw);
     });
     const draw = () => {
-      let width = chart.value.node().parentNode.offsetWidth;
+      let width = chart.value.node().parentNode?.offsetWidth || 0;
       // 延迟绘制
       if (width == 0) return setTimeout(() => draw(), 500);
       chart.value.style("height", 150 + "px");
       chart.value.style("width", width + "px");
-      let topOffset = 50;
+      let topOffset = 70;
+      // 增加空隙间距
+      const topSpace = 8;
       let data = sortBy(featuresData.value, (x) => -1 / (x.effect + 1e-10));
       let totalEffect = sum(map(data, (x) => Math.abs(x.effect)));
       let totalPosEffects =
@@ -277,7 +283,6 @@ export default defineComponent({
       axisElement
         .attr("transform", "translate(0," + topOffset + ")")
         .call(axis);
-
       let pos = 0,
         i,
         joinPoint,
@@ -312,12 +317,12 @@ export default defineComponent({
           if (i === joinPointIndex) pointShiftStart = 0;
           if (i === joinPointIndex - 1) pointShiftEnd = 0;
           return lineFunction([
-            [x, 6 + topOffset],
-            [x + w, 6 + topOffset],
-            [x + w + pointShiftEnd, 14.5 + topOffset],
-            [x + w, 23 + topOffset],
-            [x, 23 + topOffset],
-            [x + pointShiftStart, 14.5 + topOffset],
+            [x, 6 + topSpace + topOffset],
+            [x + w, 6 + topSpace + topOffset],
+            [x + w + pointShiftEnd, 14.5 + topSpace + topOffset],
+            [x + w, 23 + topSpace + topOffset],
+            [x, 23 + topSpace + topOffset],
+            [x + pointShiftStart, 14.5 + topSpace + topOffset],
           ]);
         })
         .attr("fill", (d: any) =>
@@ -363,7 +368,7 @@ export default defineComponent({
         .append("text")
         .attr("class", "force-bar-labels")
         .attr("font-size", "12px")
-        .attr("y", 48 + topOffset)
+        .attr("y", 48 + topOffset + topSpace + 8)
         .merge(labels)
         .text((d: any) => {
           if (d.value !== undefined && d.value !== null && d.value !== "") {
@@ -385,6 +390,7 @@ export default defineComponent({
           d.innerTextWidth = this.getComputedTextLength();
           return "none";
         });
+
       // compute where the text labels should go
       if (data.length > 0) {
         pos = joinPoint + scale.invert(5);
@@ -415,6 +421,7 @@ export default defineComponent({
           scale(d.textx) + scaleOffset < width - props.labelMargin
         );
       });
+
       let labelBacking = mainGroup.selectAll(".force-bar-labelBacking").data(a);
       labelBacking
         .enter()
@@ -427,33 +434,33 @@ export default defineComponent({
           return lineFunction([
             [
               scale(d.x) + scale(Math.abs(d.effect)) + scaleOffset,
-              23 + topOffset,
+              23 + topOffset + topSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) : scale(d.textx) + d.textWidth) +
                 scaleOffset +
                 5,
-              33 + topOffset,
+              33 + topOffset + topSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) : scale(d.textx) + d.textWidth) +
                 scaleOffset +
                 5,
-              54 + topOffset,
+              54 + topOffset + topSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) - d.textWidth : scale(d.textx)) +
                 scaleOffset -
                 5,
-              54 + topOffset,
+              54 + topOffset + topSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) - d.textWidth : scale(d.textx)) +
                 scaleOffset -
                 5,
-              33 + topOffset,
+              33 + topOffset + topSpace,
             ],
-            [scale(d.x) + scaleOffset, 23 + topOffset],
+            [scale(d.x) + scaleOffset, 23 + topOffset + topSpace],
           ]);
         })
         .attr(
@@ -471,7 +478,7 @@ export default defineComponent({
         .attr("class", "force-bar-labelDividers")
         .attr("height", "21px")
         .attr("width", "1px")
-        .attr("y", 33 + topOffset)
+        .attr("y", 35 + topOffset + topSpace + 8)
         .merge(labelDividers)
         .attr(
           "x",
@@ -496,9 +503,9 @@ export default defineComponent({
         .attr("d", (d: any) => {
           let pos = scale(d.x) + scale(Math.abs(d.effect)) + scaleOffset;
           return lineFunction([
-            [pos, 6 + topOffset],
-            [pos + (d.effect < 0 ? -4 : 4), 14.5 + topOffset],
-            [pos, 23 + topOffset],
+            [pos, 6 + topOffset + topSpace],
+            [pos + (d.effect < 0 ? -4 : 4), 14.5 + topOffset + topSpace],
+            [pos, 23 + topOffset + topSpace],
           ]);
         })
         .attr("stroke", (d: any, i: any) => {
@@ -544,7 +551,7 @@ export default defineComponent({
 
       joinPointTitle
         .attr("x", scale(joinPoint) + scaleOffset)
-        .attr("y", -22 + topOffset)
+        .attr("y", -28 + topOffset)
         .attr("text-anchor", "middle")
         .attr("font-size", "12")
         .attr("fill", "#000")
@@ -553,7 +560,7 @@ export default defineComponent({
 
       joinPointTitleLeft
         .attr("x", scale(joinPoint) + scaleOffset - 16)
-        .attr("y", -38 + topOffset)
+        .attr("y", -38 + topOffset - 16)
         .attr("text-anchor", "end")
         .attr("font-size", "13")
         .attr("fill", colors.value[0])
@@ -561,7 +568,7 @@ export default defineComponent({
         .attr("opacity", 1.0);
       joinPointTitleRight
         .attr("x", scale(joinPoint) + scaleOffset + 16)
-        .attr("y", -38 + topOffset)
+        .attr("y", -38 + topOffset - 16)
         .attr("text-anchor", "start")
         .attr("font-size", "13")
         .attr("fill", colors.value[1])
@@ -570,7 +577,7 @@ export default defineComponent({
 
       joinPointTitleLeftArrow
         .attr("x", scale(joinPoint) + scaleOffset + 7)
-        .attr("y", -42 + topOffset)
+        .attr("y", -42 + topOffset - 16)
         .attr("text-anchor", "end")
         .attr("font-size", "13")
         .attr("fill", colors.value[0])
@@ -578,7 +585,7 @@ export default defineComponent({
         .attr("opacity", 1.0);
       joinPointTitleRightArrow
         .attr("x", scale(joinPoint) + scaleOffset - 7)
-        .attr("y", -36 + topOffset)
+        .attr("y", -36 + topOffset - 16)
         .attr("text-anchor", "start")
         .attr("font-size", "13")
         .attr("fill", colors.value[1])
@@ -587,12 +594,28 @@ export default defineComponent({
 
       baseValueTitle
         .attr("x", scaleCentered(0))
-        .attr("y", -22 + topOffset)
+        .attr("y", -28 + topOffset)
         .attr("text-anchor", "middle")
         .attr("font-size", "12")
         .attr("fill", "#000")
-        .text("base value")
+        .text(props.baseValueTitle)
         .attr("opacity", 0.5);
+
+      const mainGroupWidth = mainGroup.node().getBBox().width;
+      const joinPointTitleBBox = joinPointTitle.node().getBBox();
+      const baseValueTitleBBox = baseValueTitle.node().getBBox();
+      if (
+        !(
+          baseValueTitleBBox.x >
+            joinPointTitleBBox.x + joinPointTitleBBox.width ||
+          baseValueTitleBBox.x + baseValueTitleBBox.width < joinPointTitleBBox.x
+        )
+      ) {
+        baseValueTitle.attr("opacity", 0);
+      }
+      if (mainGroupWidth > width) {
+        chart.value.style("width", mainGroupWidth + "px");
+      }
     };
     const redraw = debounce(() => draw(), 200);
     return () => {

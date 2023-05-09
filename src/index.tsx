@@ -1,9 +1,9 @@
 // import { withInstall } from "@dangojs/digitforce-ui-utils";
-import AdditiveForceVisualizer from "./AdditiveForceVisualizer";
+import _AdditiveForceVisualizer from "./AdditiveForceVisualizer";
 
 // export default withInstall(EditText);
 
-export { AdditiveForceVisualizer };
+export const AdditiveForceVisualizer = _AdditiveForceVisualizer;
 
 const Shap = {
   AdditiveForceVisualizer,
