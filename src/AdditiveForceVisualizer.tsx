@@ -613,7 +613,15 @@ export default defineComponent({
       ) {
         baseValueTitle.attr("opacity", 0);
       }
-      const onTopGroupW = Math.abs(onTopGroupBBox.x) + onTopGroupBBox.width;
+      let onTopGroupW = width;
+      if (onTopGroupBBox.x < 0) {
+        const w1 = Math.abs(onTopGroupBBox.x) + onTopGroupBBox.width;
+        const w2 = Math.abs(onTopGroupBBox.x) + width;
+        onTopGroupW = w1 > w2 ? w1 : w2;
+      } else {
+        onTopGroupW = Math.abs(onTopGroupBBox.x) + onTopGroupBBox.width;
+      }
+
       if (onTopGroupW > width + 2) {
         chart.value.style("width", onTopGroupW + "px");
         if (onTopGroupBBox.x < 0) {

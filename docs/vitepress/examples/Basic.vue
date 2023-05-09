@@ -15,7 +15,7 @@ const features = ref({
 });
 const featureNames = ref({
   "0": "Blue",
-  "1": "RedRed",
+  "1": "RedRedRedRed",
   "2": "Green",
   "3": "Orange",
   "4": "kuramakurama",
