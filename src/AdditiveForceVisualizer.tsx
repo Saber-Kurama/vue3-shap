@@ -601,7 +601,7 @@ export default defineComponent({
         .text(props.baseValueTitle)
         .attr("opacity", 0.5);
 
-      const mainGroupWidth = mainGroup.node().getBBox().width;
+      const onTopGroupBBox = onTopGroup.node().getBBox();
       const joinPointTitleBBox = joinPointTitle.node().getBBox();
       const baseValueTitleBBox = baseValueTitle.node().getBBox();
       if (
@@ -613,8 +613,17 @@ export default defineComponent({
       ) {
         baseValueTitle.attr("opacity", 0);
       }
-      if (mainGroupWidth > width) {
-        chart.value.style("width", mainGroupWidth + "px");
+      const onTopGroupW = Math.abs(onTopGroupBBox.x) + onTopGroupBBox.width;
+      if (onTopGroupW > width + 2) {
+        chart.value.style("width", onTopGroupW + "px");
+        if (onTopGroupBBox.x < 0) {
+          chart.value.attr(
+            "viewBox",
+            `${onTopGroupBBox.x} 0 ${onTopGroupW} ${150}`
+          );
+        }
+      } else {
+        chart.value.attr("viewBox", null);
       }
     };
     const redraw = debounce(() => draw(), 200);

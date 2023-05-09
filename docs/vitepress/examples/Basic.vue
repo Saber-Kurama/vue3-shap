@@ -15,10 +15,10 @@ const features = ref({
 });
 const featureNames = ref({
   "0": "Blue",
-  "1": "Red",
+  "1": "RedRed",
   "2": "Green",
   "3": "Orange",
-  "4": "kuramakuramakuramakuramakuramakuramakuramakuramakuramakuramakuramakurama",
+  "4": "kuramakurama",
 });
 
 // setTimeout(() => {
