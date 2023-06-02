@@ -251,11 +251,13 @@ export default defineComponent({
       let width = chart.value.node().parentNode?.offsetWidth || 0;
       // 延迟绘制
       if (width == 0) return setTimeout(() => draw(), 500);
-      chart.value.style("height", 150 + "px");
+      chart.value.style("height", 250 + "px");
       chart.value.style("width", width + "px");
       let topOffset = 70;
       // 增加空隙间距
       const topSpace = 8;
+      // 增加文字和柱状图的间距
+      const labelBackingSpace = 20;
       let data = sortBy(featuresData.value, (x) => -1 / (x.effect + 1e-10));
       let totalEffect = sum(map(data, (x) => Math.abs(x.effect)));
       let totalPosEffects =
@@ -368,7 +370,7 @@ export default defineComponent({
         .append("text")
         .attr("class", "force-bar-labels")
         .attr("font-size", "12px")
-        .attr("y", 48 + topOffset + topSpace + 8)
+        .attr("y", 48 + topOffset + topSpace + 8 + labelBackingSpace)
         .merge(labels)
         .text((d: any) => {
           if (d.value !== undefined && d.value !== null && d.value !== "") {
@@ -440,25 +442,25 @@ export default defineComponent({
               (d.effect > 0 ? scale(d.textx) : scale(d.textx) + d.textWidth) +
                 scaleOffset +
                 5,
-              33 + topOffset + topSpace,
+              33 + topOffset + topSpace + labelBackingSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) : scale(d.textx) + d.textWidth) +
                 scaleOffset +
                 5,
-              54 + topOffset + topSpace,
+              54 + topOffset + topSpace + labelBackingSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) - d.textWidth : scale(d.textx)) +
                 scaleOffset -
                 5,
-              54 + topOffset + topSpace,
+              54 + topOffset + topSpace + labelBackingSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) - d.textWidth : scale(d.textx)) +
                 scaleOffset -
                 5,
-              33 + topOffset + topSpace,
+              33 + topOffset + topSpace + labelBackingSpace,
             ],
             [scale(d.x) + scaleOffset, 23 + topOffset + topSpace],
           ]);
@@ -478,7 +480,7 @@ export default defineComponent({
         .attr("class", "force-bar-labelDividers")
         .attr("height", "21px")
         .attr("width", "1px")
-        .attr("y", 35 + topOffset + topSpace + 8)
+        .attr("y", 35 + topOffset + topSpace + 8 + labelBackingSpace)
         .merge(labelDividers)
         .attr(
           "x",
@@ -627,7 +629,7 @@ export default defineComponent({
         if (onTopGroupBBox.x < 0) {
           chart.value.attr(
             "viewBox",
-            `${onTopGroupBBox.x} 0 ${onTopGroupW} ${150}`
+            `${onTopGroupBBox.x} 0 ${onTopGroupW} ${250}`
           );
         } else {
           chart.value.attr("viewBox", null);
