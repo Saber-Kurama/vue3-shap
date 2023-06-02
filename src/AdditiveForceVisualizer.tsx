@@ -70,7 +70,7 @@ export default defineComponent({
     },
     outNames: {
       type: Array as PropType<string[]>,
-      default: ["预测值"],
+      default: ["对预测得分贡献"],
     },
   },
   setup(props) {
@@ -251,13 +251,13 @@ export default defineComponent({
       let width = chart.value.node().parentNode?.offsetWidth || 0;
       // 延迟绘制
       if (width == 0) return setTimeout(() => draw(), 500);
-      chart.value.style("height", 250 + "px");
+      chart.value.style("height", 200 + "px");
       chart.value.style("width", width + "px");
       let topOffset = 70;
       // 增加空隙间距
       const topSpace = 8;
       // 增加文字和柱状图的间距
-      const labelBackingSpace = 20;
+      const labelBackingSpace = 28;
       let data = sortBy(featuresData.value, (x) => -1 / (x.effect + 1e-10));
       let totalEffect = sum(map(data, (x) => Math.abs(x.effect)));
       let totalPosEffects =
@@ -372,13 +372,13 @@ export default defineComponent({
         .attr("font-size", "12px")
         .attr("y", 48 + topOffset + topSpace + 8 + labelBackingSpace)
         .merge(labels)
-        .text((d: any) => {
-          if (d.value !== undefined && d.value !== null && d.value !== "") {
-            return (
-              d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
-            );
-          } else return d.name;
-        })
+        // .text((d: any) => {
+        //   if (d.value !== undefined && d.value !== null && d.value !== "") {
+        //     return (
+        //       d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
+        //     );
+        //   } else return d.name;
+        // })
         .attr("fill", (d: any) =>
           d.effect > 0 ? colors.value[0] : colors.value[1]
         )
@@ -390,6 +390,113 @@ export default defineComponent({
           );
           // @ts-ignore
           d.innerTextWidth = this.getComputedTextLength();
+          return "none";
+        });
+
+      labels
+        .selectAll(".force-bar-labels")
+        .data((d: any) => {
+          return [d, d];
+        })
+        .enter()
+        // .merge(labels)
+        .append("tspan")
+        .text((d: any, index: number) => {
+          if (index === 0) {
+            return d.name + ": ";
+          }
+          if (d.value !== undefined && d.value !== null && d.value !== "") {
+            return isNaN(d.value) ? d.value : tickFormat(d.value);
+          } else return "";
+        })
+        .attr("fill", (d: any, index: number) => {
+          if (index === 0) {
+            return "#60646F";
+          }
+          console.log("d", d);
+          return d.effect > 0 ? colors.value[0] : colors.value[1];
+        })
+        .attr("font-weight", (_: any, index: number) => {
+          if (index === 1) {
+            return "bold";
+          }
+        });
+      labels
+        .enter()
+        .merge(labels)
+        .attr("stroke", function (d: any) {
+          d.textWidth = Math.max(
+            // @ts-ignore
+            this.getComputedTextLength(),
+            scale(Math.abs(d.effect)) - 10
+          );
+          // @ts-ignore
+          d.innerTextWidth = this.getComputedTextLength();
+          return "none";
+        });
+
+      let labels1 = onTopGroup
+        .selectAll(".force-bar-labels1")
+        .data(filteredData);
+      labels1.exit().remove();
+      labels1 = labels1
+        .enter()
+        .append("text")
+        .attr("class", "force-bar-labels1")
+        .attr("font-size", "12px")
+        .attr("y", 64 + topOffset + topSpace + 8 + labelBackingSpace)
+        .merge(labels1);
+      // .text((d: any) => {
+      //   if (d.value !== undefined && d.value !== null && d.value !== "") {
+      //     return (
+      //       d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
+      //     );
+      //   } else return d.name;
+      // })
+
+      labels1
+        .selectAll(".force-bar-labels1")
+        .data((d: any) => {
+          return [d, d];
+        })
+        .enter()
+        // .merge(labels)
+        .append("tspan")
+        .text((d: any, index: number) => {
+          if (index === 0) {
+            return "贡献值: ";
+          }
+          return d.effect;
+        })
+        .attr("fill", (d: any, index: number) => {
+          if (index === 0) {
+            return "#60646F";
+          }
+          console.log("d", d);
+          return d.effect > 0 ? colors.value[0] : colors.value[1];
+        })
+        .attr("font-weight", (_: any, index: number) => {
+          if (index === 1) {
+            return "bold";
+          }
+        });
+      labels1
+        .enter()
+        .merge(labels1)
+        .attr("stroke", function (d: any) {
+          const textWidth = d.textWidth || 0;
+          d.textWidth = Math.max(
+            textWidth,
+            // @ts-ignore
+            this.getComputedTextLength(),
+            scale(Math.abs(d.effect)) - 10
+          );
+          const innerTextWidth = d.innerTextWidth || 0;
+          d.innerTextWidth = Math.max(
+            innerTextWidth,
+            // @ts-ignore
+            this.getComputedTextLength()
+          );
           return "none";
         });
 
@@ -408,14 +515,25 @@ export default defineComponent({
       }
 
       labels
+        .attr("x", (d: any) => {
+          return (
+            scale(d.textx) +
+            scaleOffset +
+            (d.effect > 0 ? -d.textWidth / 2 : d.textWidth / 2) -
+            d.innerTextWidth / 2
+          );
+        })
+        .attr("text-anchor", "start"); //d => d.effect > 0 ? 'end' : 'start');
+      labels1
         .attr(
           "x",
           (d: any) =>
             scale(d.textx) +
             scaleOffset +
-            (d.effect > 0 ? -d.textWidth / 2 : d.textWidth / 2)
+            (d.effect > 0 ? -d.textWidth / 2 : d.textWidth / 2) -
+            d.innerTextWidth / 2
         )
-        .attr("text-anchor", "middle"); //d => d.effect > 0 ? 'end' : 'start');
+        .attr("text-anchor", "start"); //d => d.effect > 0 ? 'end' : 'start');
 
       const a = filter(filteredData, (d) => {
         return (
@@ -442,25 +560,25 @@ export default defineComponent({
               (d.effect > 0 ? scale(d.textx) : scale(d.textx) + d.textWidth) +
                 scaleOffset +
                 5,
-              33 + topOffset + topSpace + labelBackingSpace,
+              35 + topOffset + topSpace + labelBackingSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) : scale(d.textx) + d.textWidth) +
                 scaleOffset +
                 5,
-              54 + topOffset + topSpace + labelBackingSpace,
+              54 + 30 + topOffset + topSpace + labelBackingSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) - d.textWidth : scale(d.textx)) +
                 scaleOffset -
                 5,
-              54 + topOffset + topSpace + labelBackingSpace,
+              54 + 30 + topOffset + topSpace + labelBackingSpace,
             ],
             [
               (d.effect > 0 ? scale(d.textx) - d.textWidth : scale(d.textx)) +
                 scaleOffset -
                 5,
-              33 + topOffset + topSpace + labelBackingSpace,
+              35 + topOffset + topSpace + labelBackingSpace,
             ],
             [scale(d.x) + scaleOffset, 23 + topOffset + topSpace],
           ]);
@@ -478,7 +596,7 @@ export default defineComponent({
         .enter()
         .append("rect")
         .attr("class", "force-bar-labelDividers")
-        .attr("height", "21px")
+        .attr("height", "36px")
         .attr("width", "1px")
         .attr("y", 35 + topOffset + topSpace + 8 + labelBackingSpace)
         .merge(labelDividers)
@@ -629,7 +747,7 @@ export default defineComponent({
         if (onTopGroupBBox.x < 0) {
           chart.value.attr(
             "viewBox",
-            `${onTopGroupBBox.x} 0 ${onTopGroupW} ${250}`
+            `${onTopGroupBBox.x} 0 ${onTopGroupW} ${200}`
           );
         } else {
           chart.value.attr("viewBox", null);

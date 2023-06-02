@@ -46,7 +46,7 @@ const featureNames = ref({
     <AdditiveForceVisualizer
       :features="features"
       :featureNames="featureNames"
-      plot_cmap="GnBu"
+      plot_cmap="RdBu"
     />
   </div>
 </template>
