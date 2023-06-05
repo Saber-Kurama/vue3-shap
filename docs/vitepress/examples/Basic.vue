@@ -30,15 +30,15 @@ const featureNames = ref({
 //     "4": { value: -0.5, effect: -0.5 },
 //   };
 // }, 3000);
-// setTimeout(() => {
-//   featureNames.value = {
-//     "0": "Blue",
-//     "1": "Red",
-//     "2": "Green",
-//     "3": "Orange",
-//     "4": "kuramakuramakuramakuramakuramakuramakuramakuramakuramakuramakuramakurama",
-//   };
-// }, 6000);
+setTimeout(() => {
+  featureNames.value = {
+    "0": "Blue",
+    "1": "Red",
+    "2": "Green",
+    "3": "Orange",
+    "4": "kuramakuramakuramakuramakuramakuramakuramakuramakuramakuramakuramakurama",
+  };
+}, 3000);
 </script>
 
 <template>

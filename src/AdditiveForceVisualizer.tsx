@@ -372,13 +372,14 @@ export default defineComponent({
         .attr("font-size", "12px")
         .attr("y", 48 + topOffset + topSpace + 8 + labelBackingSpace)
         .merge(labels)
-        // .text((d: any) => {
-        //   if (d.value !== undefined && d.value !== null && d.value !== "") {
-        //     return (
-        //       d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
-        //     );
-        //   } else return d.name;
-        // })
+        .text((d: any) => {
+          return "";
+          // if (d.value !== undefined && d.value !== null && d.value !== "") {
+          //   return (
+          //     d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
+          //   );
+          // } else return d.name;
+        })
         .attr("fill", (d: any) =>
           d.effect > 0 ? colors.value[0] : colors.value[1]
         )
@@ -413,7 +414,6 @@ export default defineComponent({
           if (index === 0) {
             return "#60646F";
           }
-          console.log("d", d);
           return d.effect > 0 ? colors.value[0] : colors.value[1];
         })
         .attr("font-weight", (_: any, index: number) => {
@@ -445,14 +445,15 @@ export default defineComponent({
         .attr("class", "force-bar-labels1")
         .attr("font-size", "12px")
         .attr("y", 64 + topOffset + topSpace + 8 + labelBackingSpace)
-        .merge(labels1);
-      // .text((d: any) => {
-      //   if (d.value !== undefined && d.value !== null && d.value !== "") {
-      //     return (
-      //       d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
-      //     );
-      //   } else return d.name;
-      // })
+        .merge(labels1)
+        .text((d: any) => {
+          return "";
+          // if (d.value !== undefined && d.value !== null && d.value !== "") {
+          //   return (
+          //     d.name + " = " + (isNaN(d.value) ? d.value : tickFormat(d.value))
+          //   );
+          // } else return d.name;
+        });
 
       labels1
         .selectAll(".force-bar-labels1")
@@ -472,7 +473,6 @@ export default defineComponent({
           if (index === 0) {
             return "#60646F";
           }
-          console.log("d", d);
           return d.effect > 0 ? colors.value[0] : colors.value[1];
         })
         .attr("font-weight", (_: any, index: number) => {
